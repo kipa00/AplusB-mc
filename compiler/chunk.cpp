@@ -14,11 +14,77 @@ void chunk::feed(int y) {
 }
 
 void chunk::feed(string name) {
+	if (name == "minecraft:air") {
+		(this->block &= 15) |= AIR;
+	} else if (name == "minecraft:bedrock") {
+		(this->block &= 15) |= BEDROCK;
+	} else if (name == "minecraft:stone") {
+		(this->block &= 15) |= STONE;
+	} else if (name == "minecraft:sandstone") {
+		(this->block &= 15) |= SANDSTONE;
+	} else if (name == "minecraft:redstone_wire") {
+		(this->block &= 15) |= REDSTONE_WIRE;
+	} else if (name == "minecraft:redstone_torch") {
+		(this->block &= 15) |= REDSTONE_TORCH;
+	} else if (name == "minecraft:redstone_wall_torch") {
+		(this->block &= 15) |= REDSTONE_WALL_TORCH;
+	} else if (name == "minecraft:repeater") {
+		(this->block &= 31) |= REPEATER;
+	} else if (name == "minecraft:comparator") {
+		(this->block &= 15) |= COMPARATOR;
+	} else if (name == "minecraft:redstone_lamp") {
+		(this->block &= 15) |= REDSTONE_LAMP;
+	} else if (name == "minecraft:lever") { // id unknown
+		(this->block &= 15) |= LEVER;
+	} else if (name == "minecraft:lime_concrete") {
+		(this->block &= 15) |= LIME_CONCRETE;
+	} else if (name == "minecraft:light_blue_concrete") {
+		(this->block &= 15) |= LIGHT_BLUE_CONCRETE;
+	}
 	printf("  Block : %s\n", name.c_str());
 }
 
 void chunk::feed(string attr, string val) {
+	if (attr == "facing") {
+		if (val == "east") {
+			this->block |= EAST;
+		} else if (val == "west") {
+			this->block |= WEST;
+		} else if (val == "south") {
+			this->block |= SOUTH;
+		} else if (val == "north") {
+			this->block |= NORTH;
+		}
+	} else if (attr == "power") {
+		int power;
+		if (sscanf(val.c_str(), "%d", &power) != 1 || !(0 <= power && power <= 15)) {
+			throw REDSTONE_POWER_ERROR;
+		}
+		(this->block &= 240) |= power;
+	} else if (attr == "lit" || attr == "powered") {
+		if (val == "true") {
+			this->block |= POWERED;
+		} else if (val != "false") {
+			throw REDSTONE_NONDUST_POWERED_ERROR;
+		}
+	} else if (attr == "delay") {
+		int delay;
+		if (sscanf(val.c_str(), "%d", &delay) != 1 || !(1 <= delay && delay <= 4)) {
+			throw REDSTONE_REPEATER_DELAY_ERROR;
+		}
+		this->block |= (delay - 1) << 3;
+	} else if (attr == "mode") {
+		if (val == "subtract") {
+			this->block |= SUBTRACT;
+		} else if (val != "compare") {
+			throw REDSTONE_COMPARATOR_MODE_ERROR;
+		}
+	}
 	printf("    %s : %s\n", attr.c_str(), val.c_str());
+}
+
+void chunk::init() {
+	this->block = 0;
 }
 
 void chunk::feed(byte *data, int len) {
@@ -30,12 +96,13 @@ void chunk::flush_section() {
 }
 
 void chunk::flush_block() {
-	printf("  attr end\n");
+	printf("block = %02X\n", this->block);
+	this->palette.push_back(this->block);
+	this->block = 0;
 }
 
 bool chunk::read(byte *data, int *pos, int tag_type, int stage) {
 	bool named;
-	fflush(stdout);
 	string name;
 	if (tag_type < 0) {
 		tag_type = data[(*pos)++];
@@ -146,5 +213,6 @@ bool chunk::read(byte *data, int *pos, int tag_type, int stage) {
 
 void chunk::read(byte *data) {
 	int pos = 0;
+	this->init();
 	this->read(data, &pos);
 }
