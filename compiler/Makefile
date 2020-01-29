@@ -1,12 +1,12 @@
 all: main
 
-main: main.o chunk.o predicate.o bitstream.o
-	g++ -o main main.o chunk.o predicate.o bitstream.o
+main: main.o chunk.o predicate.o bitstream.o world.o
+	g++ -o main main.o chunk.o predicate.o bitstream.o world.o -lz
 
 chunk.o: chunk.cpp chunk.hpp bitstream.hpp predicate.hpp
 	g++ -c chunk.cpp -O2 -std=gnu++17
 
-main.o: main.cpp chunk.hpp predicate.hpp
+main.o: main.cpp world.hpp predicate.hpp
 	g++ -c main.cpp -O2 -std=gnu++17
 
 predicate.o: predicate.cpp predicate.hpp
@@ -15,5 +15,8 @@ predicate.o: predicate.cpp predicate.hpp
 bitstream.o: bitstream.cpp bitstream.hpp predicate.hpp
 	g++ -c bitstream.cpp -O2 -std=gnu++17
 
+world.o: world.cpp world.hpp chunk.hpp predicate.hpp
+	g++ -c world.cpp -O2 -std=gnu++17
+
 clean:
-	rm -rf *.o main
+	rm -f *.o main

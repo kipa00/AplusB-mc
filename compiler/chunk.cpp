@@ -1,5 +1,7 @@
 #include "chunk.hpp"
 
+//#define CHUNK_DEBUG
+
 int need_progress(int stage, string name) {
 	if (stage == 0 && name == "") return 1;
 	else if (stage == 1 && name == "Level") return 2;
@@ -11,7 +13,9 @@ int need_progress(int stage, string name) {
 
 void chunk::feed(int y) {
 	this->y = y;
+#ifdef CHUNK_DEBUG
 	printf("Y : %d\n", y);
+#endif
 }
 
 void chunk::feed(string name) {
@@ -44,7 +48,9 @@ void chunk::feed(string name) {
 	} else {
 		throw UNKNOWN_BLOCK_ERROR;
 	}
+#ifdef CHUNK_DEBUG
 	printf("  Block : %s\n", name.c_str());
+#endif
 }
 
 void chunk::feed(string attr, string val) {
@@ -83,7 +89,9 @@ void chunk::feed(string attr, string val) {
 			throw REDSTONE_COMPARATOR_MODE_ERROR;
 		}
 	}
+#ifdef CHUNK_DEBUG
 	printf("    %s : %s\n", attr.c_str(), val.c_str());
+#endif
 }
 
 void chunk::init() {
@@ -96,7 +104,9 @@ void chunk::init() {
 
 void chunk::feed(const byte *data, int len) {
 	this->br.init(data);
+#ifdef CHUNK_DEBUG
 	printf("world data read\n");
+#endif
 }
 
 void chunk::flush_section() {
@@ -117,13 +127,17 @@ void chunk::flush_section() {
 	this->y = 255;
 	this->palette.clear();
 	this->br.init(nullptr);
+#ifdef CHUNK_DEBUG
 	printf("section end\n");
+#endif
 }
 
 void chunk::flush_block() {
-	printf("block = %02X\n", this->block);
 	this->palette.push_back(this->block);
 	this->block = 0;
+#ifdef CHUNK_DEBUG
+	printf("block = %02X\n", this->block);
+#endif
 }
 
 bool chunk::read(const byte *data, int *pos, int tag_type, int stage) {
@@ -160,7 +174,6 @@ bool chunk::read(const byte *data, int *pos, int tag_type, int stage) {
 					(coord <<= 8) |= data[(*pos)++];
 				}
 				(name[0] == 'x' ? this->x : this->z) = (int)coord;
-				printf("%c : %d\n", name[0], (int)coord);
 			} else *pos += 4;
 			break;
 		case 4:
