@@ -13,5 +13,14 @@ int main() {
 
 	chunk c;
 	c.read(data);
+	int x, z;
+	puts("z\\x 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F");
+	for (z=0; z<16; ++z) {
+		printf("%2X ", z);
+		for (x=0; x<16; ++x) {
+			printf("%02X ", c.getXYZ(x, 56, z));
+		}
+		puts("");
+	}
 	return 0;
 }

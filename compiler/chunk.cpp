@@ -10,6 +10,7 @@ int need_progress(int stage, string name) {
 }
 
 void chunk::feed(int y) {
+	this->y = y;
 	printf("Y : %d\n", y);
 }
 
@@ -34,12 +35,14 @@ void chunk::feed(string name) {
 		(this->block &= 15) |= COMPARATOR;
 	} else if (name == "minecraft:redstone_lamp") {
 		(this->block &= 15) |= REDSTONE_LAMP;
-	} else if (name == "minecraft:lever") { // id unknown
+	} else if (name == "minecraft:lever") {
 		(this->block &= 15) |= LEVER;
 	} else if (name == "minecraft:lime_concrete") {
 		(this->block &= 15) |= LIME_CONCRETE;
 	} else if (name == "minecraft:light_blue_concrete") {
 		(this->block &= 15) |= LIGHT_BLUE_CONCRETE;
+	} else {
+		throw UNKNOWN_BLOCK_ERROR;
 	}
 	printf("  Block : %s\n", name.c_str());
 }
@@ -85,13 +88,35 @@ void chunk::feed(string attr, string val) {
 
 void chunk::init() {
 	this->block = 0;
+	this->y = 255;
+	this->palette.clear();
+	this->world_data = new byte *[16];
+	memset(this->world_data, 0, sizeof(byte *) * 16);
 }
 
-void chunk::feed(byte *data, int len) {
+void chunk::feed(const byte *data, int len) {
+	this->br.init(data);
 	printf("world data read\n");
 }
 
 void chunk::flush_section() {
+	if (0 <= this->y && this->y < 16) {
+		if (!this->br.init_needed()) {
+			if (this->world_data[this->y]) {
+				throw DUPLICATE_Y_SECTION_ERROR;
+			}
+			this->world_data[this->y] = new byte[4096];
+			int needed_bit = this->palette.size() < 2U ? 4 : std::max(4, 32 - __builtin_clz((int)this->palette.size() - 1));
+			for (int i=0; i<4096; ++i) {
+				int x = this->br.read(needed_bit);
+				this->world_data[this->y][i] = this->palette[x];
+			}
+		}
+	}
+	this->block = 0;
+	this->y = 255;
+	this->palette.clear();
+	this->br.init(nullptr);
 	printf("section end\n");
 }
 
@@ -101,7 +126,7 @@ void chunk::flush_block() {
 	this->block = 0;
 }
 
-bool chunk::read(byte *data, int *pos, int tag_type, int stage) {
+bool chunk::read(const byte *data, int *pos, int tag_type, int stage) {
 	bool named;
 	string name;
 	if (tag_type < 0) {
@@ -211,8 +236,28 @@ bool chunk::read(byte *data, int *pos, int tag_type, int stage) {
 	return true;
 }
 
-void chunk::read(byte *data) {
+void chunk::read(const byte *data) {
 	int pos = 0;
 	this->init();
 	this->read(data, &pos);
+}
+
+chunk::~chunk() {
+	if (this->world_data) {
+		int i;
+		for (i=0; i<16; ++i) {
+			if (this->world_data[i]) {
+				delete [](this->world_data[i]);
+			}
+		}
+		delete []this->world_data;
+		this->world_data = nullptr;
+	}
+}
+
+byte chunk::getXYZ(int x, int y, int z) {
+	if (!this->world_data) return AIR;
+	int idx = y >> 4;
+	if (!this->world_data[idx]) return AIR;
+	return this->world_data[idx][((y & 15) << 8) | ((z & 15) << 4) | ((x ^ 15) & 15)]; // why x ^ 15?
 }
