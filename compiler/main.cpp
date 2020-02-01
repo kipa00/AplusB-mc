@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 	fclose(fp);
 
 	int x, y, z;
-	for (y=56; y<=59; ++y) {
+	for (y=56; y<=60; ++y) {
 		printf("layer %d:\n", y);
 		puts("z\\x 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F");
 		for (z=0; z<16; ++z) {
@@ -32,13 +32,13 @@ int main(int argc, char *argv[]) {
 			puts("");
 		}
 	}
-	for (y=56; y<=59; ++y) {
+	for (y=56; y<=60; ++y) {
 		for (z=0; z<16; ++z) {
 			for (x=0; x<16; ++x) {
 				vector<int> res;
 				analyze(w, x, y, z, res);
 				if (!res.empty()) {
-					printf("block REDSTONE_WIRE at (%d, %d, %d) from", x, y, z);
+					printf("block %s at (%d, %d, %d) from", block_to_string(w.getXYZ(x, y, z)).c_str(), x, y, z);
 					for (const int &coord : res) {
 						printf(" (%d, %d, %d)", coord >> 17, (coord >> 9) & 255, coord & 511);
 					}

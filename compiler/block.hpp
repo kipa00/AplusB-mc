@@ -13,7 +13,7 @@ const byte REDSTONE_WALL_TORCH = 96;
 const byte COMPARATOR = 112;
 const byte REPEATER = 128;
 const byte REDSTONE_LAMP = 160;
-const byte LEVER = 176; // id unknown
+const byte LEVER = 176;
 const byte LIME_CONCRETE = 192;
 const byte LIGHT_BLUE_CONCRETE = 208;
 
@@ -27,5 +27,8 @@ const byte POWERED = 4;
 const byte SUBTRACT = 8;
 
 const int NOT_SUPPORTED_LEVER = 0;
+
+string block_to_string(byte block);
+bool is_repeater(byte block);
 
 #endif
