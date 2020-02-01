@@ -13,7 +13,7 @@ public:
 	world();
 	~world();
 	void init(FILE *fp);
-	byte getXYZ(int x, int y, int z);
+	byte getXYZ(int x, int y, int z) const;
 };
 
 #endif

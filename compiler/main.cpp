@@ -1,10 +1,15 @@
 #include <cstdio>
 #include "world.hpp"
+#include "analyze.hpp"
 
 const int BUFSIZE = 1048576;
 byte data[BUFSIZE];
 
 int main(int argc, char *argv[]) {
+	if (argc <= 1) {
+		fprintf(stderr, "Usage: %s <region file name>\n", argv[0]);
+		return -1;
+	}
 	FILE *fp = fopen(argv[1], "rb");
 	world w;
 	try {
@@ -15,14 +20,32 @@ int main(int argc, char *argv[]) {
 	}
 	fclose(fp);
 
-	int x, z;
-	puts("z\\x 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F");
-	for (z=0; z<32; ++z) {
-		printf("%2X ", z & 15);
-		for (x=0; x<32; ++x) {
-			printf("%02X ", w.getXYZ(x, 56, z));
+	int x, y, z;
+	for (y=56; y<=59; ++y) {
+		printf("layer %d:\n", y);
+		puts("z\\x 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F");
+		for (z=0; z<16; ++z) {
+			printf("%2X ", z & 15);
+			for (x=0; x<16; ++x) {
+				printf("%02X ", w.getXYZ(x, y, z));
+			}
+			puts("");
 		}
-		puts("");
+	}
+	for (y=56; y<=59; ++y) {
+		for (z=0; z<16; ++z) {
+			for (x=0; x<16; ++x) {
+				vector<int> res;
+				analyze(w, x, y, z, res);
+				if (!res.empty()) {
+					printf("block REDSTONE_WIRE at (%d, %d, %d) from", x, y, z);
+					for (const int &coord : res) {
+						printf(" (%d, %d, %d)", coord >> 17, (coord >> 9) & 255, coord & 511);
+					}
+					puts("");
+				}
+			}
+		}
 	}
 	return 0;
 }

@@ -58,7 +58,7 @@ void world::init(FILE *fp) {
 	delete []arr;
 }
 
-byte world::getXYZ(int x, int y, int z) {
+byte world::getXYZ(int x, int y, int z) const {
 	if (!this->world_data) return AIR;
 	int idx = ((x >> 4) & 31) | (((z >> 4) & 31) << 5);
 	if (!this->world_data[idx]) return AIR;

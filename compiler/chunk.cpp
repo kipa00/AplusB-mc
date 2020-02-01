@@ -116,7 +116,7 @@ void chunk::flush_section() {
 				throw DUPLICATE_Y_SECTION_ERROR;
 			}
 			this->world_data[this->y] = new byte[4096];
-			int needed_bit = this->palette.size() < 2U ? 4 : std::max(4, 32 - __builtin_clz((int)this->palette.size() - 1));
+			const int needed_bit = this->palette.size() < 2U ? 4 : std::max(4, 32 - __builtin_clz((int)this->palette.size() - 1));
 			for (int i=0; i<4096; ++i) {
 				int x = this->br.read(needed_bit);
 				this->world_data[this->y][i] = this->palette[x];
@@ -272,5 +272,5 @@ byte chunk::getXYZ(int x, int y, int z) {
 	if (!this->world_data) return AIR;
 	int idx = y >> 4;
 	if (!this->world_data[idx]) return AIR;
-	return this->world_data[idx][((y & 15) << 8) | ((z & 15) << 4) | ((x ^ 15) & 15)]; // why x ^ 15?
+	return this->world_data[idx][((y & 15) << 8) | ((z & 15) << 4) | (x & 15)];
 }

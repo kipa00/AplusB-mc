@@ -8,6 +8,7 @@ using std::vector;
 
 typedef unsigned char byte;
 typedef unsigned int u32;
+typedef unsigned long long u64;
 
 string bytes_to_string(const byte *data, int len);
 

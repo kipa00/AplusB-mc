@@ -6,7 +6,8 @@
 class bitreader {
 private:
 	const byte *data;
-	int pos;
+	int pos, remaining;
+	u64 temp;
 public:
 	bitreader() {
 		init(nullptr, false);

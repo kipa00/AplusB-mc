@@ -17,6 +17,8 @@ const byte LEVER = 176; // id unknown
 const byte LIME_CONCRETE = 192;
 const byte LIGHT_BLUE_CONCRETE = 208;
 
+const byte BLOCK_ONLY = 240;
+
 const byte EAST = 0;
 const byte NORTH = 1;
 const byte SOUTH = 2;
