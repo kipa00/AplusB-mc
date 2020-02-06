@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 	fclose(fp);
 
 	int x, y, z;
-	for (y=56; y<=60; ++y) {
+	for (y=56; y<=57; ++y) {
 		printf("layer %d:\n", y);
 		puts("z\\x 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F");
 		for (z=0; z<16; ++z) {
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 			puts("");
 		}
 	}
-	for (y=56; y<=60; ++y) {
+	for (y=56; y<=57; ++y) {
 		for (z=0; z<16; ++z) {
 			for (x=0; x<16; ++x) {
 				vector<int> res;
