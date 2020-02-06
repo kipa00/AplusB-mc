@@ -59,6 +59,7 @@ void world::init(FILE *fp) {
 }
 
 byte world::getXYZ(int x, int y, int z) const {
+	if (!(0 <= x && x < 512 && 0 <= y && y < 255 && 0 <= z && z < 512)) return AIR;
 	if (!this->world_data) return AIR;
 	int idx = ((x >> 4) & 31) | (((z >> 4) & 31) << 5);
 	if (!this->world_data[idx]) return AIR;

@@ -10,7 +10,8 @@ string block_to_string(byte block) {
 		case REDSTONE_TORCH:
 		case REDSTONE_WALL_TORCH: return "redstone_torch";
 		case COMPARATOR: return "comparator";
-		case REPEATER: return "repeater";
+		case REPEATER:
+		case REPEATER | 1: return "repeater";
 		case REDSTONE_LAMP: return "redstone_lamp";
 		case LEVER: return "lever";
 		case LIME_CONCRETE: return "lime_concrete";

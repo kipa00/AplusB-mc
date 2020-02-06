@@ -12,4 +12,9 @@ const int wide_dx[] = {-2, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0, 0, 0,  0,
 const int wide_dy[] = { 0, -1,  0,  0,  0,  1, -2, -1, -1, -1,  0,  0, 0, 0,  1, 1, 1, 2, -1,  0, 0, 0, 1, 0};
 const int wide_dz[] = { 0,  0, -1,  0,  1,  0,  0, -1,  0,  1, -2, -1, 1, 2, -1, 0, 1, 0,  0, -1, 0, 1, 0, 0};
 
+const int narrow_len = 6;
+const int narrow_dx[] = {-1,  0,  0, 0, 0, 1};
+const int narrow_dy[] = { 0, -1,  0, 0, 1, 0};
+const int narrow_dz[] = { 0,  0, -1, 1, 0, 0};
+
 #endif

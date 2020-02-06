@@ -37,10 +37,11 @@ int main(int argc, char *argv[]) {
 			for (x=0; x<16; ++x) {
 				vector<int> res;
 				analyze(w, x, y, z, res);
-				if (!res.empty()) {
+				if (!res.empty() && res.front() >= 0) {
 					printf("block %s at (%d, %d, %d) from", block_to_string(w.getXYZ(x, y, z)).c_str(), x, y, z);
 					for (const int &coord : res) {
-						printf(" (%d, %d, %d)", coord >> 17, (coord >> 9) & 255, coord & 511);
+						if (coord >= 0) printf(" (%d, %d, %d)", coord >> 17, (coord >> 9) & 255, coord & 511);
+						else printf(" /");
 					}
 					puts("");
 				}

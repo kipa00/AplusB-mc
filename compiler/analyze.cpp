@@ -145,7 +145,6 @@ void analyze(const world &w, int x, int y, int z, vector<int> &result) {
 			case SOUTH: --bz; break;
 			case NORTH: ++bz; break;
 		}
-		//printf("TORCH AT (%d, %d, %d), BASE BLOCK AT (%d, %d, %d)\n", x, y, z, bx, by, bz);
 		for (int i=0; i<wide_len; ++i) {
 			const int nx = x + wide_dx[i], ny = y + wide_dy[i], nz = z + wide_dz[i];
 			byte fetched = w.getXYZ(nx, ny, nz);
@@ -171,5 +170,67 @@ void analyze(const world &w, int x, int y, int z, vector<int> &result) {
 				}
 			}
 		}
+	} else if (is_repeater(this_block)) {
+		test_facing(w, x, y, z, [&] (const world &w, int bx, int by, int bz) {
+			byte facing = w.getXYZ(bx, by, bz);
+			if (is_opaque(facing)) {
+				for (int i=0; i<narrow_len; ++i) {
+					const int nx = bx + narrow_dx[i], ny = by + narrow_dy[i], nz = bz + narrow_dz[i];
+					byte fetched = w.getXYZ(nx, ny, nz);
+					if ((fetched & BLOCK_ONLY) == REDSTONE_WIRE) {
+						result.push_back(pack(nx, ny, nz));
+					} else if ((fetched & BLOCK_ONLY) == REDSTONE_TORCH || (fetched & BLOCK_ONLY) == REDSTONE_WALL_TORCH) {
+						if (ny - by == -1) {
+							result.push_back(pack(nx, ny, nz));
+						}
+					} else if (is_repeater(fetched) || (fetched & BLOCK_ONLY) == COMPARATOR) {
+						if (test_opposite_facing(w, nx, ny, nz, [=] (const world &w, int xx, int yy, int zz) {
+							return bx == xx && by == yy && bz == zz;
+						})) {
+							result.push_back(pack(nx, ny, nz));
+						}
+					} else if ((fetched & BLOCK_ONLY) == LEVER) {
+						if (test_opposite_facing(w, nx, ny, nz, [=] (const world &w, int xx, int yy, int zz) {
+							return bx == xx && by == yy && bz == zz;
+						})) {
+							result.push_back(pack(nx, ny, nz));
+						}
+					}
+				}
+			} else switch (facing & BLOCK_ONLY) {
+				case REDSTONE_WIRE:
+				case REDSTONE_TORCH:
+				case REDSTONE_WALL_TORCH:
+				case LEVER:
+					result.push_back(pack(bx, by, bz));
+					break;
+				default:
+					if (is_repeater(facing) || (facing & BLOCK_ONLY) == COMPARATOR) {
+						if ((facing & 3) == (this_block & 3)) {
+							result.push_back(pack(bx, by, bz));
+						}
+					}
+					break;
+			}
+			result.push_back(-1);
+			int dsx = -1, dex = 1, dsz = -1, dez = 1;
+			if (z == bz) {
+				dsx = dex = 0;
+			} else {
+				dsz = dez = 0;
+			}
+			for (int dx = dsx; dx <= dex; dx += 2) {
+				for (int dz = dsz; dz <= dez; dz += 2) {
+					if (is_repeater(w.getXYZ(x + dx, y, z + dz)) && test_opposite_facing(w, x + dx, y, z + dz, [=] (const world &w, int bx, int by, int bz) {
+						return bx == x && by == y && bz == z;
+					})) {
+						result.push_back(pack(x + dx, y, z + dz));
+					}
+				}
+			}
+			return true;
+		});
+	} else if ((this_block & BLOCK_ONLY) == COMPARATOR) {
+		
 	}
 }
