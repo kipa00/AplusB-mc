@@ -178,7 +178,9 @@ void analyze(const world &w, int x, int y, int z, vector<int> &result) {
 					const int nx = bx + narrow_dx[i], ny = by + narrow_dy[i], nz = bz + narrow_dz[i];
 					byte fetched = w.getXYZ(nx, ny, nz);
 					if ((fetched & BLOCK_ONLY) == REDSTONE_WIRE) {
-						result.push_back(pack(nx, ny, nz));
+						if (redstone_into(w, nx, ny, nz, bx, by, bz)) {
+							result.push_back(pack(nx, ny, nz));
+						}
 					} else if ((fetched & BLOCK_ONLY) == REDSTONE_TORCH || (fetched & BLOCK_ONLY) == REDSTONE_WALL_TORCH) {
 						if (ny - by == -1) {
 							result.push_back(pack(nx, ny, nz));
