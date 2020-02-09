@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 			puts("");
 		}
 	}
-	for (y=56; y<=57; ++y) {
+	for (y=56; y<=59; ++y) {
 		for (z=0; z<16; ++z) {
 			for (x=0; x<16; ++x) {
 				vector<int> res;

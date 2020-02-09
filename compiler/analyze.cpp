@@ -65,6 +65,7 @@ inline bool is_repeater(byte block) {
 
 bool redstone_into(const world &w, int x, int y, int z, int ox, int oy, int oz) {
 	if (abs(x - ox) + abs(y - oy) + abs(z - oz) != 1) return false;
+	if (x == ox && y - 1 == oy && z == oz) return true;
 	if (y != oy) return false;
 
 	bool block_upper = is_opaque(w.getXYZ(x, y + 1, z));
@@ -95,7 +96,7 @@ bool redstone_into(const world &w, int x, int y, int z, int ox, int oy, int oz) 
 }
 
 // world must be error-free
-void analyze(const world &w, int x, int y, int z, vector<int> &result) {
+int analyze(const world &w, int x, int y, int z, vector<int> &result) {
 	byte this_block = w.getXYZ(x, y, z);
 	if ((this_block & BLOCK_ONLY) == REDSTONE_WIRE) {
 		for (int i=0; i<wide_len; ++i) {
@@ -136,6 +137,7 @@ void analyze(const world &w, int x, int y, int z, vector<int> &result) {
 				}
 			}
 		}
+		return 1;
 	} else if ((this_block & BLOCK_ONLY) == REDSTONE_TORCH || (this_block & BLOCK_ONLY) == REDSTONE_WALL_TORCH) {
 		int bx = x, by = y, bz = z;
 		if ((this_block & BLOCK_ONLY) == REDSTONE_TORCH) --by;
@@ -170,6 +172,7 @@ void analyze(const world &w, int x, int y, int z, vector<int> &result) {
 				}
 			}
 		}
+		return 2;
 	} else if (is_repeater(this_block)) {
 		test_facing(w, x, y, z, [&] (const world &w, int bx, int by, int bz) {
 			byte facing = w.getXYZ(bx, by, bz);
@@ -232,6 +235,7 @@ void analyze(const world &w, int x, int y, int z, vector<int> &result) {
 			}
 			return true;
 		});
+		return 3;
 	} else if ((this_block & BLOCK_ONLY) == COMPARATOR) {
 		test_facing(w, x, y, z, [&] (const world &w, int bx, int by, int bz) {
 			byte facing = w.getXYZ(bx, by, bz);
@@ -299,5 +303,62 @@ void analyze(const world &w, int x, int y, int z, vector<int> &result) {
 			}
 			return true;
 		});
+		return 4;
+	} else if ((this_block & BLOCK_ONLY) == LEVER) {
+		return 5;
+	} else if ((this_block & BLOCK_ONLY) == REDSTONE_LAMP) {
+		for (int i=0; i<narrow_len; ++i) {
+			const int nx = x + narrow_dx[i], ny = y + narrow_dy[i], nz = z + narrow_dz[i];
+			byte fetched = w.getXYZ(nx, ny, nz);
+			if (is_opaque(fetched)) {
+				for (int j=0; j<narrow_len; ++j) {
+					const int bx = nx + narrow_dx[j], by = ny + narrow_dy[j], bz = nz + narrow_dz[j];
+					byte facing = w.getXYZ(bx, by, bz);
+					if ((facing & BLOCK_ONLY) == REDSTONE_WIRE) {
+						if (redstone_into(w, bx, by, bz, nx, ny, nz)) {
+							result.push_back(pack(bx, by, bz));
+						}
+					} else if ((facing & BLOCK_ONLY) == REDSTONE_TORCH || (facing & BLOCK_ONLY) == REDSTONE_WALL_TORCH) {
+						if (by - ny == -1) {
+							result.push_back(pack(bx, by, bz));
+						}
+					} else if (is_repeater(facing) || (facing & BLOCK_ONLY) == COMPARATOR) {
+						if (test_opposite_facing(w, bx, by, bz, [=] (const world &w, int xx, int yy, int zz) {
+							return nx == xx && ny == yy && nz == zz;
+						})) {
+							result.push_back(pack(bx, by, bz));
+						}
+					} else if ((facing & BLOCK_ONLY) == LEVER) {
+						if (test_opposite_facing(w, bx, by, bz, [=] (const world &w, int xx, int yy, int zz) {
+							return nx == xx && ny == yy && nz == zz;
+						})) {
+							result.push_back(pack(bx, by, bz));
+						}
+					}
+				}
+			} else if ((fetched & BLOCK_ONLY) == REDSTONE_WIRE) {
+				if (redstone_into(w, nx, ny, nz, x, y, z)) {
+					result.push_back(pack(nx, ny, nz));
+				}
+			} else if ((fetched & BLOCK_ONLY) == REDSTONE_TORCH || (fetched & BLOCK_ONLY) == REDSTONE_WALL_TORCH) {
+				if (ny - y <= 0 || (fetched & BLOCK_ONLY) == REDSTONE_WALL_TORCH) {
+					result.push_back(pack(nx, ny, nz));
+				}
+			} else if (is_repeater(fetched) || (fetched & BLOCK_ONLY) == COMPARATOR) {
+				if (test_opposite_facing(w, nx, ny, nz, [=] (const world &w, int xx, int yy, int zz) {
+					return x == xx && y == yy && z == zz;
+				})) {
+					result.push_back(pack(nx, ny, nz));
+				}
+			} else if ((fetched & BLOCK_ONLY) == LEVER) {
+				if (test_opposite_facing(w, nx, ny, nz, [=] (const world &w, int xx, int yy, int zz) {
+					return x == xx && y == yy && z == zz;
+				})) {
+					result.push_back(pack(nx, ny, nz));
+				}
+			}
+		}
+		return 6;
 	}
+	return 0;
 }
