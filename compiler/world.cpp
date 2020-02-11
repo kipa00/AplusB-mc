@@ -78,3 +78,10 @@ world::~world() {
 		this->world_data = nullptr;
 	}
 }
+
+bool world::has_world_data(int cx, int cy, int cz) const {
+	if (!(0 <= cx && cx < 32 && 0 <= cy && cy < 16 && 0 <= cz && cz < 32)) return false;
+	if (!this->world_data) return false;
+	if (!this->world_data[(cz << 5) | cx]) return false;
+	return this->world_data[(cz << 5) | cx]->has_world_data(cy);
+}

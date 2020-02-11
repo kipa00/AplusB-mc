@@ -14,8 +14,7 @@ const byte COMPARATOR = 112;
 const byte REPEATER = 128;
 const byte REDSTONE_LAMP = 160;
 const byte LEVER = 176;
-const byte LIME_CONCRETE = 192;
-const byte LIGHT_BLUE_CONCRETE = 208;
+const byte CONCRETE = 192;
 
 const byte BLOCK_ONLY = 240;
 
@@ -30,5 +29,6 @@ const int NOT_SUPPORTED_LEVER = 0;
 
 string block_to_string(byte block);
 bool is_repeater(byte block);
+bool is_opaque(byte block);
 
 #endif

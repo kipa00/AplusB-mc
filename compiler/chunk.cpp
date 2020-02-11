@@ -42,9 +42,9 @@ void chunk::feed(string name) {
 	} else if (name == "minecraft:lever") {
 		(this->block &= 15) |= LEVER;
 	} else if (name == "minecraft:lime_concrete") {
-		(this->block &= 15) |= LIME_CONCRETE;
+		(this->block &= 15) |= CONCRETE | 0;
 	} else if (name == "minecraft:light_blue_concrete") {
-		(this->block &= 15) |= LIGHT_BLUE_CONCRETE;
+		(this->block &= 15) |= CONCRETE | 1;
 	} else {
 		throw UNKNOWN_BLOCK_ERROR;
 	}
@@ -273,4 +273,11 @@ byte chunk::getXYZ(int x, int y, int z) {
 	int idx = y >> 4;
 	if (!this->world_data[idx]) return AIR;
 	return this->world_data[idx][((y & 15) << 8) | ((z & 15) << 4) | (x & 15)];
+}
+
+bool chunk::has_world_data(int cy) const {
+	if (!(0 <= cy && cy < 16)) return false;
+	if (!this->world_data) return false;
+	if (!this->world_data[cy]) return false;
+	return true;
 }

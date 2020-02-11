@@ -23,4 +23,6 @@ const int DUPLICATE_Y_SECTION_ERROR = -6;
 const int UNSUPPORTED_COMPRESSION_ERROR = -7;
 const int TOO_BIG_SECTION_ERROR = -8;
 
+const int NO_SUPPORTING_BLOCK_ERROR = -9;
+
 #endif

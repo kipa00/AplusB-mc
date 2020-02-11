@@ -1,24 +1,13 @@
 #include "analyze.hpp"
 
-bool is_opaque(byte block) {
-	switch (block & BLOCK_ONLY) {
-		case BEDROCK:
-		case STONE:
-		case SANDSTONE:
-		case REDSTONE_LAMP:
-		case LIME_CONCRETE:
-		case LIGHT_BLUE_CONCRETE:
-			return true;
-	}
-	return false;
-}
-
 inline int abs(int x) {
 	return x < 0 ? -x : x;
 }
 
-inline int pack(int x, int y, int z) {
-	return (x << 17) | (y << 9) | z;
+int pack(int x, int y, int z) {
+	const int cx = x >> 4, cy = y >> 4, cz = z >> 4;
+	const int ix = x & 15, iy = y & 15, iz = z & 15;
+	return (((cz << 9) | (cx << 4) | cy) << 12) | ((iz << 8) | (ix << 4) | iy);
 }
 
 bool test_facing(const world &w, int x, int y, int z, std::function<bool(const world &, int, int, int)> f) {
@@ -57,10 +46,6 @@ bool test_opposite_facing(const world &w, int x, int y, int z, std::function<boo
 			break;
 	}
 	return f(w, x, y, z);
-}
-
-inline bool is_repeater(byte block) {
-	return (block & 224) == REPEATER;
 }
 
 bool redstone_into(const world &w, int x, int y, int z, int ox, int oy, int oz) {

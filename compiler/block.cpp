@@ -11,15 +11,26 @@ string block_to_string(byte block) {
 		case REDSTONE_WALL_TORCH: return "redstone_torch";
 		case COMPARATOR: return "comparator";
 		case REPEATER:
-		case REPEATER | 1: return "repeater";
+		case REPEATER | 16: return "repeater";
 		case REDSTONE_LAMP: return "redstone_lamp";
 		case LEVER: return "lever";
-		case LIME_CONCRETE: return "lime_concrete";
-		case LIGHT_BLUE_CONCRETE: return "light_blue_concrete";
+		case CONCRETE: return "concrete";
 	}
 	return "unknown";
 }
 
-inline bool is_repeater(byte block) {
+bool is_repeater(byte block) {
 	return (block & 224) == REPEATER;
+}
+
+bool is_opaque(byte block) {
+	switch (block & BLOCK_ONLY) {
+		case BEDROCK:
+		case STONE:
+		case SANDSTONE:
+		case REDSTONE_LAMP:
+		case CONCRETE:
+			return true;
+	}
+	return false;
 }

@@ -23,6 +23,7 @@ private:
 public:
 	void read(const byte *data);
 	byte getXYZ(int x, int y, int z);
+	bool has_world_data(int cy) const;
 	~chunk();
 };
 

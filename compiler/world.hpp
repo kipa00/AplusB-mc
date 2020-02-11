@@ -14,6 +14,7 @@ public:
 	~world();
 	void init(FILE *fp);
 	byte getXYZ(int x, int y, int z) const;
+	bool has_world_data(int cx, int cy, int cz) const;
 };
 
 #endif

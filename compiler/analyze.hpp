@@ -6,6 +6,7 @@
 #include "world.hpp"
 
 int analyze(const world &w, int x, int y, int z, vector<int> &result);
+int pack(int x, int y, int z);
 
 const int wide_len = 25;
 const int wide_dx[] = {-2, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0, 0, 0,  0, 0, 0, 0,  1,  1, 1, 1, 1, 2};
