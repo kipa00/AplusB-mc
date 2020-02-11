@@ -84,16 +84,17 @@ bool redstone_into(const world &w, int x, int y, int z, int ox, int oy, int oz) 
 int analyze(const world &w, int x, int y, int z, vector<int> &result) {
 	byte this_block = w.getXYZ(x, y, z);
 	if ((this_block & BLOCK_ONLY) == REDSTONE_WIRE) {
+		vector<int> side;
 		for (int i=0; i<wide_len; ++i) {
 			const int nx = x + wide_dx[i], ny = y + wide_dy[i], nz = z + wide_dz[i];
 			byte fetched = w.getXYZ(nx, ny, nz);
 			if ((fetched & BLOCK_ONLY) == REDSTONE_WIRE) {
 				if (wide_dy[i] == 0 && abs(wide_dx[i]) + abs(wide_dz[i]) <= 1) {
-					result.push_back(pack(nx, ny, nz));
+					side.push_back(pack(nx, ny, nz));
 				} else if (wide_dy[i] == 1 && !is_opaque(w.getXYZ(x, y + 1, z))) {
-					result.push_back(pack(nx, ny, nz));
+					side.push_back(pack(nx, ny, nz));
 				} else if (wide_dy[i] == -1 && !is_opaque(w.getXYZ(nx, ny + 1, nz))) {
-					result.push_back(pack(nx, ny, nz));
+					side.push_back(pack(nx, ny, nz));
 				}
 			} else if ((fetched & BLOCK_ONLY) == REDSTONE_TORCH || (fetched & BLOCK_ONLY) == REDSTONE_WALL_TORCH) {
 				if (
@@ -121,6 +122,10 @@ int analyze(const world &w, int x, int y, int z, vector<int> &result) {
 					result.push_back(pack(nx, ny, nz));
 				}
 			}
+		}
+		result.push_back(-1);
+		for (const int &x : side) {
+			result.push_back(x);
 		}
 		return 1;
 	} else if ((this_block & BLOCK_ONLY) == REDSTONE_TORCH || (this_block & BLOCK_ONLY) == REDSTONE_WALL_TORCH) {
@@ -288,9 +293,9 @@ int analyze(const world &w, int x, int y, int z, vector<int> &result) {
 			}
 			return true;
 		});
-		return 7;
+		return 7 + (this_block & SUBTRACT ? 1 : 0);
 	} else if ((this_block & BLOCK_ONLY) == LEVER) {
-		return 8;
+		return 9;
 	} else if ((this_block & BLOCK_ONLY) == REDSTONE_LAMP) {
 		for (int i=0; i<narrow_len; ++i) {
 			const int nx = x + narrow_dx[i], ny = y + narrow_dy[i], nz = z + narrow_dz[i];
@@ -343,7 +348,7 @@ int analyze(const world &w, int x, int y, int z, vector<int> &result) {
 				}
 			}
 		}
-		return 9;
+		return 10;
 	}
 	return 0;
 }

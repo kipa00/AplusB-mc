@@ -12,11 +12,12 @@ wire::wire() {
 	this->delay = 0;
 }
 
-bool wire::update(int power) {
-	if (this->power == power) {
+bool wire::update(int power, int side) {
+	int calculated_power = std::max({power, side - 1, 0});
+	if (this->power == calculated_power) {
 		return false;
 	}
-	this->power = power;
+	this->power = calculated_power;
 	return true;
 }
 
@@ -25,7 +26,6 @@ torch::torch() {
 }
 
 bool torch::update(int power) {
-	printf("torch update, power = %d\n", power);
 	int calculated_power = power ? 0 : 15;
 	if (this->power == calculated_power) {
 		return false;
@@ -62,6 +62,19 @@ comparator::comparator() {
 
 bool comparator::update(int power, int side) {
 	int calculated_power = power >= side ? power : 0;
+	if (this->power == calculated_power) {
+		return false;
+	}
+	this->power = calculated_power;
+	return true;
+}
+
+subtractor::subtractor() {
+	this->delay = 1;
+}
+
+bool subtractor::update(int power, int side) {
+	int calculated_power = std::max(power - side, 0);
 	if (this->power == calculated_power) {
 		return false;
 	}

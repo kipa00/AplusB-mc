@@ -32,18 +32,20 @@ int main(int argc, char *argv[]) {
 			case 7: // comparator
 				n = new comparator;
 				break;
-			case 8: // lever
+			case 8: // subtractor
+				n = new subtractor;
+				break;
+			case 9: // lever
 				n = new lever;
 				break;
-			case 9: // lamp
+			case 10: // lamp
 				n = new lamp;
 				break;
 		}
 		switch (b >> 4) {
-			case 1: // redstone wire
 			case 2: // redstone torch
-			case 8: // lever
-			case 9: // lamp
+			case 9: // lever
+			case 10: // lamp
 				{
 					int u;
 					while ((u = bs.read_int()) >= 0) {
@@ -51,11 +53,13 @@ int main(int argc, char *argv[]) {
 					}
 				}
 				break;
+			case 1: // redstone wire
 			case 3:
 			case 4:
 			case 5:
 			case 6: // repeater
 			case 7: // comparator
+			case 8: // subtractor
 				for (int i=0; i<2; ++i) {
 					int u;
 					while ((u = bs.read_int()) >= 0) {
@@ -104,7 +108,6 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
-	puts("all read!");
 	int tick = 0;
 	while (!update[0]->empty() || !update[1]->empty() || !update[2]->empty() || !update[3]->empty() || !update[4]->empty()) {
 		while (!update[0]->empty()) {
@@ -123,10 +126,8 @@ int main(int argc, char *argv[]) {
 			bool result = false;
 			if (b < 0) {
 				result = now_node->update(std::max(a, 0));
-				printf("update %d to %d\n", f, now_node->power);
 			} else {
 				result = now_node->update(b, a);
-				printf("update %d to %d\n", f, now_node->power);
 			}
 			if (result) {
 				for (const int &other : now_node->need_update) {
@@ -143,8 +144,13 @@ int main(int argc, char *argv[]) {
 			update[3] = update[4];
 			update[4] = temp;
 		}
-		puts("one tick");
 	}
-	printf("%d tick(s) elapsed\n", tick);
+	fprintf(stderr, "elapsed %d tick(s)\n", tick);
+	u64 t = 0;
+	int i;
+	for (i=0; i<output.size(); ++i) {
+		t |= (graph[output[i]]->power ? 1 : 0) << i;
+	}
+	printf("%llu\n", t);
 	return 0;
 }

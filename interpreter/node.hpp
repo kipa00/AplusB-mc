@@ -14,7 +14,7 @@ public:
 class wire : public node {
 public:
 	wire();
-	bool update(int power);
+	bool update(int power, int side);
 };
 
 class torch : public node {
@@ -33,6 +33,12 @@ public:
 class comparator : public node {
 public:
 	comparator();
+	bool update(int power, int side);
+};
+
+class subtractor : public node {
+public:
+	subtractor();
 	bool update(int power, int side);
 };
 
