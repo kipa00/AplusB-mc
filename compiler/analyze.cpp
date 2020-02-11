@@ -220,7 +220,7 @@ int analyze(const world &w, int x, int y, int z, vector<int> &result) {
 			}
 			return true;
 		});
-		return 3;
+		return 3 + ((this_block >> 3) & 3);
 	} else if ((this_block & BLOCK_ONLY) == COMPARATOR) {
 		test_facing(w, x, y, z, [&] (const world &w, int bx, int by, int bz) {
 			byte facing = w.getXYZ(bx, by, bz);
@@ -288,9 +288,9 @@ int analyze(const world &w, int x, int y, int z, vector<int> &result) {
 			}
 			return true;
 		});
-		return 4;
+		return 7;
 	} else if ((this_block & BLOCK_ONLY) == LEVER) {
-		return 5;
+		return 8;
 	} else if ((this_block & BLOCK_ONLY) == REDSTONE_LAMP) {
 		for (int i=0; i<narrow_len; ++i) {
 			const int nx = x + narrow_dx[i], ny = y + narrow_dy[i], nz = z + narrow_dz[i];
@@ -343,7 +343,7 @@ int analyze(const world &w, int x, int y, int z, vector<int> &result) {
 				}
 			}
 		}
-		return 6;
+		return 9;
 	}
 	return 0;
 }

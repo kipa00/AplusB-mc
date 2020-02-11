@@ -62,7 +62,6 @@ int main(int argc, char *argv[]) {
 				memset(*ptr, 0, sizeof(int) * 4096);
 			}
 			(*ptr)[((z & 15) << 8) | ((x & 15) << 4) | (y & 15)] = ++cnt;
-			printf("#%d at (%d, %d, %d)\n", cnt, x, y, z);
 		}
 	});
 
