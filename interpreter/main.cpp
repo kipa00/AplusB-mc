@@ -106,6 +106,7 @@ int main(int argc, char *argv[]) {
 					update[0]->push(x);
 				}
 			}
+			t >>= 1;
 		}
 	}
 	int tick = 0;
