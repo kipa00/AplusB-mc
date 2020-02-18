@@ -103,16 +103,16 @@ int main(int argc, char *argv[]) {
 			lever *n = (lever *)graph[node_idx];
 			if (n->set_as(t & 1)) {
 				for (const int &x : n->need_update) {
-					update[0]->push(x);
+					update[graph[x]->delay]->push(x);
 				}
 			}
 			t >>= 1;
 		}
 	}
-	int tick = 0;
+	int tick = 0, last_updated_tick = 0;
 	while (!update[0]->empty() || !update[1]->empty() || !update[2]->empty() || !update[3]->empty() || !update[4]->empty()) {
 		while (!update[0]->empty()) {
-			int f = update[0]->front();
+			const int f = update[0]->front();
 			update[0]->pop();
 			node *now_node = graph[f];
 			int a = -1, b = -1;
@@ -134,6 +134,7 @@ int main(int argc, char *argv[]) {
 				for (const int &other : now_node->need_update) {
 					update[graph[other]->delay]->push(other);
 				}
+				last_updated_tick = tick;
 			}
 		}
 		++tick;
@@ -146,7 +147,7 @@ int main(int argc, char *argv[]) {
 			update[4] = temp;
 		}
 	}
-	fprintf(stderr, "elapsed %d tick(s)\n", tick);
+	fprintf(stderr, "elapsed %d tick(s)\n", last_updated_tick);
 	u64 t = 0;
 	int i;
 	for (i=0; i<output.size(); ++i) {

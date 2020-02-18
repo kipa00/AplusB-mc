@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 						int idx = pack(nx, ny, nz);
 						write_int(fp, u[idx >> 12][idx & 4095]);
 					}
-					if (type != 6) {
+					if (type != 10) {
 						switch (w.getXYZ(x, y, z) & 3) {
 							case EAST: --nx; break;
 							case WEST: ++nx; break;
