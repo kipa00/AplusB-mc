@@ -7,7 +7,7 @@
 
 class chunk {
 private:
-	int x, y, z, block;
+	int x, y, z, block, attr;
 	vector<int> palette;
 	byte **world_data;
 	bitreader br;

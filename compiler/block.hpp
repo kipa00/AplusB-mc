@@ -25,7 +25,18 @@ const byte WEST = 3;
 const byte POWERED = 4;
 const byte SUBTRACT = 8;
 
-const int NOT_SUPPORTED_LEVER = 0;
+const int ATTR_FACING = 1;
+const int ATTR_FACE = 2;
+const int ATTR_POWER = 4;
+const int ATTR_POWERED = 8;
+const int ATTR_LIT = 16;
+const int ATTR_DELAY = 32;
+const int ATTR_MODE = 64;
+const int ATTR_LOCKED = 128;
+const int ATTR_EAST = 256;
+const int ATTR_WEST = 512;
+const int ATTR_SOUTH = 1024;
+const int ATTR_NORTH = 2048;
 
 string block_to_string(byte block);
 bool is_repeater(byte block);

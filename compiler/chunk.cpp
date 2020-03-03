@@ -64,30 +64,52 @@ void chunk::feed(string attr, string val) {
 		} else if (val == "north") {
 			this->block |= NORTH;
 		}
+		this->attr |= ATTR_FACING;
+	} else if (attr == "face") {
+		if (val != "wall") {
+			throw NOT_SUPPORTED_LEVER;
+		}
+		this->attr |= ATTR_FACE;
 	} else if (attr == "power") {
 		int power;
 		if (sscanf(val.c_str(), "%d", &power) != 1 || !(0 <= power && power <= 15)) {
 			throw REDSTONE_POWER_ERROR;
 		}
 		(this->block &= 240) |= power;
+		this->attr |= ATTR_POWER;
 	} else if (attr == "lit" || attr == "powered") {
 		if (val == "true") {
 			this->block |= POWERED;
 		} else if (val != "false") {
 			throw REDSTONE_NONDUST_POWERED_ERROR;
 		}
+		this->attr |= attr == "lit" ? ATTR_LIT : ATTR_POWERED;
 	} else if (attr == "delay") {
 		int delay;
 		if (sscanf(val.c_str(), "%d", &delay) != 1 || !(1 <= delay && delay <= 4)) {
 			throw REDSTONE_REPEATER_DELAY_ERROR;
 		}
 		this->block |= (delay - 1) << 3;
+		this->attr |= ATTR_DELAY;
 	} else if (attr == "mode") {
 		if (val == "subtract") {
 			this->block |= SUBTRACT;
 		} else if (val != "compare") {
 			throw REDSTONE_COMPARATOR_MODE_ERROR;
 		}
+		this->attr |= ATTR_MODE;
+	} else if (attr == "locked") {
+		this->attr |= ATTR_LOCKED;
+	} else if (attr == "east") {
+		this->attr |= ATTR_EAST;
+	} else if (attr == "west") {
+		this->attr |= ATTR_WEST;
+	} else if (attr == "south") {
+		this->attr |= ATTR_SOUTH;
+	} else if (attr == "north") {
+		this->attr |= ATTR_NORTH;
+	} else {
+		throw UNKNOWN_ATTR_ERROR;
 	}
 #ifdef CHUNK_DEBUG
 	printf("    %s : %s\n", attr.c_str(), val.c_str());
@@ -99,6 +121,7 @@ void chunk::init() {
 	this->y = 255;
 	this->palette.clear();
 	this->world_data = new byte *[16];
+	this->attr = 0;
 	memset(this->world_data, 0, sizeof(byte *) * 16);
 }
 
@@ -134,7 +157,21 @@ void chunk::flush_section() {
 
 void chunk::flush_block() {
 	this->palette.push_back(this->block);
+	// attribute validation
+	const int attributes[] = {
+		0, 0, 0, 0, ATTR_POWER | ATTR_EAST | ATTR_WEST | ATTR_SOUTH | ATTR_NORTH /* wire */,
+		ATTR_LIT /* torch */, ATTR_LIT | ATTR_FACING /* wall torch */,
+		ATTR_FACING | ATTR_MODE | ATTR_POWERED /* comparator */,
+		ATTR_DELAY | ATTR_FACING | ATTR_LOCKED | ATTR_POWERED,
+		ATTR_DELAY | ATTR_FACING | ATTR_LOCKED | ATTR_POWERED /* repeater */,
+		ATTR_LIT /* lamp */, ATTR_FACE | ATTR_FACING | ATTR_POWERED /* lever */, 0
+	};
+	if (attributes[this->block >> 4] != this->attr) {
+		fprintf(stderr, "%x %x\n", this->block, this->attr);
+		throw ATTR_MISMATCH_ERROR;
+	}
 	this->block = 0;
+	this->attr = 0;
 #ifdef CHUNK_DEBUG
 	printf("block = %02X\n", this->block);
 #endif

@@ -25,4 +25,8 @@ const int TOO_BIG_SECTION_ERROR = -8;
 
 const int NO_SUPPORTING_BLOCK_ERROR = -9;
 
+const int UNKNOWN_ATTR_ERROR = -10;
+const int ATTR_MISMATCH_ERROR = -11;
+const int NOT_SUPPORTED_LEVER = -12;
+
 #endif
