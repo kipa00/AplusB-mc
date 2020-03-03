@@ -63,6 +63,8 @@ void chunk::feed(string attr, string val) {
 			this->block |= SOUTH;
 		} else if (val == "north") {
 			this->block |= NORTH;
+		} else {
+			throw ATTR_VALUE_MISMATCH_ERROR;
 		}
 		this->attr |= ATTR_FACING;
 	} else if (attr == "face") {
@@ -73,7 +75,7 @@ void chunk::feed(string attr, string val) {
 	} else if (attr == "power") {
 		int power;
 		if (sscanf(val.c_str(), "%d", &power) != 1 || !(0 <= power && power <= 15)) {
-			throw REDSTONE_POWER_ERROR;
+			throw ATTR_VALUE_MISMATCH_ERROR;
 		}
 		(this->block &= 240) |= power;
 		this->attr |= ATTR_POWER;
@@ -81,13 +83,13 @@ void chunk::feed(string attr, string val) {
 		if (val == "true") {
 			this->block |= POWERED;
 		} else if (val != "false") {
-			throw REDSTONE_NONDUST_POWERED_ERROR;
+			throw ATTR_VALUE_MISMATCH_ERROR;
 		}
 		this->attr |= attr == "lit" ? ATTR_LIT : ATTR_POWERED;
 	} else if (attr == "delay") {
 		int delay;
 		if (sscanf(val.c_str(), "%d", &delay) != 1 || !(1 <= delay && delay <= 4)) {
-			throw REDSTONE_REPEATER_DELAY_ERROR;
+			throw ATTR_VALUE_MISMATCH_ERROR;
 		}
 		this->block |= (delay - 1) << 3;
 		this->attr |= ATTR_DELAY;
@@ -95,18 +97,33 @@ void chunk::feed(string attr, string val) {
 		if (val == "subtract") {
 			this->block |= SUBTRACT;
 		} else if (val != "compare") {
-			throw REDSTONE_COMPARATOR_MODE_ERROR;
+			throw ATTR_VALUE_MISMATCH_ERROR;
 		}
 		this->attr |= ATTR_MODE;
 	} else if (attr == "locked") {
+		if (val != "true" && val != "false") {
+			throw ATTR_VALUE_MISMATCH_ERROR;
+		}
 		this->attr |= ATTR_LOCKED;
 	} else if (attr == "east") {
+		if (val != "none" && val != "side" && val != "up") {
+			throw ATTR_VALUE_MISMATCH_ERROR;
+		}
 		this->attr |= ATTR_EAST;
 	} else if (attr == "west") {
+		if (val != "none" && val != "side" && val != "up") {
+			throw ATTR_VALUE_MISMATCH_ERROR;
+		}
 		this->attr |= ATTR_WEST;
 	} else if (attr == "south") {
+		if (val != "none" && val != "side" && val != "up") {
+			throw ATTR_VALUE_MISMATCH_ERROR;
+		}
 		this->attr |= ATTR_SOUTH;
 	} else if (attr == "north") {
+		if (val != "none" && val != "side" && val != "up") {
+			throw ATTR_VALUE_MISMATCH_ERROR;
+		}
 		this->attr |= ATTR_NORTH;
 	} else {
 		throw UNKNOWN_ATTR_ERROR;

@@ -13,20 +13,17 @@ typedef unsigned long long u64;
 string bytes_to_string(const byte *data, int len);
 
 // errors
-const int REDSTONE_POWER_ERROR = -1;
-const int REDSTONE_NONDUST_POWERED_ERROR = -2;
-const int REDSTONE_REPEATER_DELAY_ERROR = -3;
-const int REDSTONE_COMPARATOR_MODE_ERROR = -4;
-const int UNKNOWN_BLOCK_ERROR = -5;
-const int DUPLICATE_Y_SECTION_ERROR = -6;
+const int UNKNOWN_BLOCK_ERROR = -1;
+const int ATTR_VALUE_MISMATCH_ERROR = -2;
+const int DUPLICATE_Y_SECTION_ERROR = -3;
 
-const int UNSUPPORTED_COMPRESSION_ERROR = -7;
-const int TOO_BIG_SECTION_ERROR = -8;
+const int UNSUPPORTED_COMPRESSION_ERROR = -4;
+const int TOO_BIG_SECTION_ERROR = -5;
 
-const int NO_SUPPORTING_BLOCK_ERROR = -9;
+const int NO_SUPPORTING_BLOCK_ERROR = -6;
 
-const int UNKNOWN_ATTR_ERROR = -10;
-const int ATTR_MISMATCH_ERROR = -11;
-const int NOT_SUPPORTED_LEVER = -12;
+const int UNKNOWN_ATTR_ERROR = -7;
+const int ATTR_MISMATCH_ERROR = -8;
+const int NOT_SUPPORTED_LEVER = -9;
 
 #endif
