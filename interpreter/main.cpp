@@ -1,13 +1,59 @@
 #include <cstdio>
 #include <queue>
+#include <string>
+using std::string;
+
 #include "node.hpp"
 #include "bytestream.hpp"
 
 using std::queue;
 
+void help(string fn) {
+	fprintf(stderr, "Usage: %s [other flags ...]\n", fn.c_str());
+	fprintf(stderr, "\n");
+	fprintf(stderr, "flags include:\n");
+	fprintf(stderr, "  --max-tick (number)\n    limit execution tick to given number of ticks maximum.\n");
+	fprintf(stderr, "  --ban-block (wire|torch|repeater|comparator)\n    if given circuit contains the block, rejects the execution.\n");
+}
+
 int main(int argc, char *argv[]) {
-	if (argc == 1) {
-		fprintf(stderr, "Usage: %s <compiled file name>\n", argv[0]);
+	int ban_block = 0, tick_limit = -1;
+	int parse_status = 0;
+	string fn = "";
+	for (int i=1; i<argc; ++i) {
+		string now_argv = argv[i];
+		if (now_argv == "--max-tick") {
+			parse_status = 1;
+		} else if (now_argv == "--ban-block") {
+			parse_status = 2;
+		} else {
+			if (parse_status == 0) {
+				if (fn == "") fn = argv[i];
+				else {
+					help(argv[0]);
+					return -1;
+				}
+			} else if (parse_status == 1) {
+				if (sscanf(now_argv.c_str(), "%d", &tick_limit) != 1 || tick_limit < 0) {
+					help(argv[0]);
+					return -1;
+				}
+				parse_status = 0;
+			} else if (parse_status == 2) {
+				if (now_argv == "wire") ban_block |= 2;
+				else if (now_argv == "torch") ban_block |= 4;
+				else if (now_argv == "repeater") ban_block |= 120;
+				else if (now_argv == "comparator") ban_block |= 384;
+				else {
+					help(argv[0]);
+					return -1;
+				}
+				parse_status = 0;
+			}
+		}
+	}
+	if (parse_status != 0 || fn == "") {
+		help(argv[0]);
 		return -1;
 	}
 	bytereader bs(argv[1]);
@@ -15,7 +61,11 @@ int main(int argc, char *argv[]) {
 	byte b;
 	graph.push_back(nullptr);
 	while ((b = bs.read_byte()) != 255) {
-		node *n;
+		node *n = nullptr;
+		if (ban_block & (1 << (b >> 4))) {
+			fprintf(stderr, "stopping execution from error: banned block used\n");
+			return -2;
+		}
 		switch (b >> 4) {
 			case 1: // redstone wire
 				n = new wire;
@@ -69,6 +119,10 @@ int main(int argc, char *argv[]) {
 				}
 				break;
 		}
+		if (!n) {
+			fprintf(stderr, "stopping execution from serious error: corrupted file!\n");
+			return -2;
+		}
 		{
 			int u;
 			while ((u = bs.read_int()) >= 0) {
@@ -111,6 +165,10 @@ int main(int argc, char *argv[]) {
 	}
 	int tick = 0, last_updated_tick = 0;
 	while (!update[0]->empty() || !update[1]->empty() || !update[2]->empty() || !update[3]->empty() || !update[4]->empty()) {
+		if (tick_limit >= 0 && tick > tick_limit + 4) {
+			fprintf(stderr, "stopping execution from error: tick limit exceeded\n");
+			return -2;
+		}
 		while (!update[0]->empty()) {
 			const int f = update[0]->front();
 			update[0]->pop();
@@ -147,7 +205,10 @@ int main(int argc, char *argv[]) {
 			update[4] = temp;
 		}
 	}
-	fprintf(stderr, "elapsed %d tick(s)\n", last_updated_tick);
+	if (tick_limit >= 0 && last_updated_tick > tick_limit) {
+		fprintf(stderr, "stopping execution from error: tick limit exceeded\n");
+		return -2;
+	}
 	u64 t = 0;
 	int i;
 	for (i=0; i<output.size(); ++i) {

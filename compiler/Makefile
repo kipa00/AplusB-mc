@@ -1,7 +1,7 @@
-all: main
+all: mc-compile
 
-main: main.o chunk.o predicate.o bitstream.o world.o analyze.o check.o block.o color.o
-	g++ -o main main.o chunk.o predicate.o bitstream.o world.o analyze.o check.o block.o color.o -lz
+mc-compile: main.o chunk.o predicate.o bitstream.o world.o analyze.o check.o block.o color.o
+	g++ -o mc-compile main.o chunk.o predicate.o bitstream.o world.o analyze.o check.o block.o color.o -lz
 
 chunk.o: chunk.cpp chunk.hpp bitstream.hpp predicate.hpp
 	g++ -c chunk.cpp -O2 -std=gnu++17
@@ -31,4 +31,4 @@ color.o: color.cpp color.hpp predicate.hpp
 	g++ -c color.cpp -O2 -std=gnu++17
 
 clean:
-	rm -f *.o main
+	rm -f *.o mc-compile
