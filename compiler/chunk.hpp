@@ -4,6 +4,7 @@
 #include "predicate.hpp"
 #include "block.hpp"
 #include "bitstream.hpp"
+#include "color.hpp"
 
 class chunk {
 private:

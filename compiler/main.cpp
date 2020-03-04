@@ -2,6 +2,7 @@
 #include "world.hpp"
 #include "analyze.hpp"
 #include "check.hpp"
+#include "color.hpp"
 
 const int BUFSIZE = 1048576;
 byte data[BUFSIZE];
@@ -39,8 +40,19 @@ void write_int(FILE *fp, u32 x) {
 
 int main(int argc, char *argv[]) {
 	if (argc <= 1) {
-		fprintf(stderr, "Usage: %s <region file name>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <region file name> [input list]\n", argv[0]);
 		return -1;
+	} else if (argc == 2) {
+		fprintf(stderr, "Warning: no input specified\n");
+	}
+	vector<int> input_order;
+	for (int i=2; i<argc; ++i) {
+		int v = color_to_int(argv[i]);
+		if (v < 0) {
+			fprintf(stderr, "Error: unknown color '%s'\n", argv[i]);
+			return -1;
+		}
+		input_order.push_back(v);
 	}
 	FILE *fp = fopen(argv[1], "rb");
 	world w;
@@ -139,8 +151,7 @@ int main(int argc, char *argv[]) {
 	}
 	sort(output.begin(), output.end());
 
-	// TODO: temporary input order, change when command parser is implemented
-	for (int i=0; i<2; ++i) {
+	for (const int &i : input_order) {
 		for (const auto &[_, idx] : inputs[i]) {
 			write_int(fp, u[idx >> 12][idx & 4095]);
 		}

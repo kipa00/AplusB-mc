@@ -41,10 +41,12 @@ void chunk::feed(string name) {
 		(this->block &= 15) |= REDSTONE_LAMP;
 	} else if (name == "minecraft:lever") {
 		(this->block &= 15) |= LEVER;
-	} else if (name == "minecraft:lime_concrete") {
-		(this->block &= 15) |= CONCRETE | 0;
-	} else if (name == "minecraft:light_blue_concrete") {
-		(this->block &= 15) |= CONCRETE | 1;
+	} else if (name.length() >= 19 && name.substr(0, 10) == "minecraft:" && name.substr(name.length() - 9) == "_concrete") {
+		int color = color_to_int(name.substr(10, name.length() - 19));
+		if (color < 0) {
+			throw UNKNOWN_BLOCK_ERROR;
+		}
+		this->block = CONCRETE | color;
 	} else {
 		throw UNKNOWN_BLOCK_ERROR;
 	}
