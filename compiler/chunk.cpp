@@ -44,10 +44,12 @@ void chunk::feed(string name) {
 	} else if (name.length() >= 19 && name.substr(0, 10) == "minecraft:" && name.substr(name.length() - 9) == "_concrete") {
 		int color = color_to_int(name.substr(10, name.length() - 19));
 		if (color < 0) {
+			fprintf(stderr, "Error: unknown block name '%s'\n", name.c_str());
 			throw UNKNOWN_BLOCK_ERROR;
 		}
 		this->block = CONCRETE | color;
 	} else {
+		fprintf(stderr, "Error: unknown block name '%s'\n", name.c_str());
 		throw UNKNOWN_BLOCK_ERROR;
 	}
 #ifdef CHUNK_DEBUG
@@ -128,6 +130,7 @@ void chunk::feed(string attr, string val) {
 		}
 		this->attr |= ATTR_NORTH;
 	} else {
+		fprintf(stderr, "Error: unknown attribute name '%s'\n", attr.c_str());
 		throw UNKNOWN_ATTR_ERROR;
 	}
 #ifdef CHUNK_DEBUG
@@ -155,6 +158,7 @@ void chunk::flush_section() {
 	if (0 <= this->y && this->y < 16) {
 		if (!this->br.init_needed()) {
 			if (this->world_data[this->y]) {
+				fprintf(stderr, "Error: duplicate section y = %d; did you edit the world using hex editor?\n", this->y);
 				throw DUPLICATE_Y_SECTION_ERROR;
 			}
 			this->world_data[this->y] = new byte[4096];
@@ -186,7 +190,7 @@ void chunk::flush_block() {
 		ATTR_LIT /* lamp */, ATTR_FACE | ATTR_FACING | ATTR_POWERED /* lever */, 0
 	};
 	if (attributes[this->block >> 4] != this->attr) {
-		fprintf(stderr, "%x %x\n", this->block, this->attr);
+		fprintf(stderr, "Error: block has missing or extra attribute; did you edit the world using hex editor?\n");
 		throw ATTR_MISMATCH_ERROR;
 	}
 	this->block = 0;
@@ -266,6 +270,7 @@ bool chunk::read(const byte *data, int *pos, int tag_type, int stage) {
 				for (int i=0; i<4; ++i) {
 					(len <<= 8) |= data[(*pos)++];
 				}
+				this->troubleshoot_bit = len >> 6;
 				int next_stage = named ? need_progress(stage, name) : stage;
 				while (len--) {
 					this->read(data, pos, (int)subid, next_stage);
@@ -336,4 +341,23 @@ bool chunk::has_world_data(int cy) const {
 	if (!this->world_data) return false;
 	if (!this->world_data[cy]) return false;
 	return true;
+}
+
+bool chunk::troubleshoot(int x, int z) {
+	const int target = (int)this->palette.size();
+	if (0 <= this->y && this->y < 16 && !this->br.init_needed()) {
+		for (int i=0; i<4096; ++i) {
+			int x = this->br.read(this->troubleshoot_bit);
+			if (x == target) {
+				const int y_coord = (this->y << 4) | (i >> 8);
+				if (0 <= y_coord && y_coord < 256) {
+					fprintf(stderr, "exact location might be (%d, %d, %d)\n", (x << 4) | (i & 15), y_coord, (z << 4) | ((i >> 4) & 15));
+				} else {
+					fprintf(stderr, "exact location might be (%d, ?, %d)\n", (x << 4) | (i & 15), (z << 4) | ((i >> 4) & 15));
+				}
+				return true;
+			}
+		}
+	}
+	return false;
 }

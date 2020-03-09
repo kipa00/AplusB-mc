@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 	try {
 		w.init(fp);
 	} catch (int err) {
-		printf("ERROR! %d\n", err);
+		fprintf(stderr, "Compilation aborted.\n");
 		return -1;
 	}
 	fclose(fp);

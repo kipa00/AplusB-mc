@@ -9,6 +9,7 @@
 class chunk {
 private:
 	int x, y, z, block, attr;
+	int troubleshoot_bit;
 	vector<int> palette;
 	byte **world_data;
 	bitreader br;
@@ -25,6 +26,7 @@ public:
 	void read(const byte *data);
 	byte getXYZ(int x, int y, int z);
 	bool has_world_data(int cy) const;
+	bool troubleshoot(int x, int z);
 	~chunk();
 };
 

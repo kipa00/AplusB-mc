@@ -50,7 +50,17 @@ void world::init(FILE *fp) {
 				this->world_data = new chunk *[1024];
 			}
 			this->world_data[i] = new chunk();
-			this->world_data[i]->read(inflated);
+			try {
+				this->world_data[i]->read(inflated);
+			} catch (int reason) {
+				if (reason == ATTR_VALUE_MISMATCH_ERROR) {
+					fprintf(stderr, "Error: attribute does not have possible value; did you edit the world using hex editor?\n");
+				}
+				if (!this->world_data[i]->troubleshoot(i & 31, i >> 5)) {
+					fprintf(stderr, "in chunk (%d, %d), exact position unknown.\n", i & 31, i >> 5);
+				}
+				throw reason;
+			}
 		}
 	}
 	delete []temp;
