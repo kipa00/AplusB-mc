@@ -1,7 +1,13 @@
 #include <cstdio>
 #include <queue>
 #include <string>
+#include <vector>
+#include <algorithm>
+#include <random>
+#include <chrono>
 using std::string;
+using std::queue, std::vector;
+using std::mt19937;
 
 #include "node.hpp"
 #include "bytestream.hpp"
@@ -164,10 +170,22 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	int tick = 0, last_updated_tick = 0;
+	mt19937 gen(std::chrono::steady_clock::now().time_since_epoch().count());
 	while (!update[0]->empty() || !update[1]->empty() || !update[2]->empty() || !update[3]->empty() || !update[4]->empty()) {
 		if (tick_limit >= 0 && tick > tick_limit + 4) {
 			fprintf(stderr, "stopping execution from error: tick limit exceeded\n");
 			return -2;
+		}
+		{
+			vector<int> temp;
+			while (!update[0]->empty()) {
+				temp.push_back(update[0]->front());
+				update[0]->pop();
+			}
+			shuffle(temp.begin(), temp.end(), gen);
+			for (const int &x : temp) {
+				update[0]->push(x);
+			}
 		}
 		while (!update[0]->empty()) {
 			const int f = update[0]->front();
