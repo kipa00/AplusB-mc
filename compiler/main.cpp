@@ -97,15 +97,23 @@ int main(int argc, char *argv[]) {
 				for (int i=0; i<wide_len; ++i) {
 					const int nx = x + wide_dx[i], ny = y + wide_dy[i], nz = z + wide_dz[i];
 					if (is_redstone_component(w, nx, ny, nz)) {
-						int idx = pack(nx, ny, nz);
-						write_int(fp, u[idx >> 12][idx & 4095]);
+						vector<int> temp;
+						analyze(w, nx, ny, nz, temp);
+						const int target = pack(x, y, z);
+						const int idx = pack(nx, ny, nz);
+						for (const int &v : temp) {
+							if (v == target) {
+								write_int(fp, u[idx >> 12][idx & 4095]);
+								break;
+							}
+						}
 					}
 				}
 			} else {
 				for (int i=0; i<narrow_len; ++i) {
 					int nx = x + narrow_dx[i], ny = y + narrow_dy[i], nz = z + narrow_dz[i];
 					if (is_redstone_component(w, nx, ny, nz)) {
-						int idx = pack(nx, ny, nz);
+						const int idx = pack(nx, ny, nz);
 						write_int(fp, u[idx >> 12][idx & 4095]);
 					}
 					if (type != 10) {
