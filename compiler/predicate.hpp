@@ -1,6 +1,9 @@
 #ifndef PREDICATE_HPP
 #define PREDICATE_HPP
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <string>
 #include <vector>
 using std::string;

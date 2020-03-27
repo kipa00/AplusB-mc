@@ -1,9 +1,13 @@
 #ifndef PREDICATE_HPP
 #define PREDICATE_HPP
 
+#include <algorithm>
+#include <cstdio>
+#include <cstring>
 #include <vector>
 
 using std::vector;
+using std::max;
 
 typedef unsigned char byte;
 typedef unsigned int u32;
