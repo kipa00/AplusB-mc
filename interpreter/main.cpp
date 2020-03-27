@@ -12,6 +12,8 @@ using std::mt19937;
 #include "node.hpp"
 #include "bytestream.hpp"
 
+//#define UPDATE_DEBUG
+
 using std::queue;
 
 void help(string fn) {
@@ -206,14 +208,25 @@ int main(int argc, char *argv[]) {
 			} else {
 				result = now_node->update(b, a);
 			}
+#ifdef UPDATE_DEBUG
+			fprintf(stderr, "updated node %d, now strength = %d, redstone update = %s\n", f, now_node->power, result ? "true" : "false");
+#endif
 			if (result) {
 				for (const int &other : now_node->need_update) {
 					update[graph[other]->delay]->push(other);
+				}
+				for (const int &other : now_node->input) {
+					if (other >= 0) {
+						update[graph[other]->delay]->push(other);
+					}
 				}
 				last_updated_tick = tick;
 			}
 		}
 		++tick;
+#ifdef UPDATE_DEBUG
+		puts("===");
+#endif
 		{
 			auto temp = update[0];
 			update[0] = update[1];
