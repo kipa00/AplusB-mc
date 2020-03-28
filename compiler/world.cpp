@@ -48,6 +48,7 @@ void world::init(FILE *fp) {
 
 			if (!this->world_data) {
 				this->world_data = new chunk *[1024];
+				memset(this->world_data, 0, sizeof(chunk *) * 1024);
 			}
 			this->world_data[i] = new chunk();
 			try {

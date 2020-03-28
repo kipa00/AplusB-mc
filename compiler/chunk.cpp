@@ -193,11 +193,11 @@ void chunk::flush_block() {
 		fprintf(stderr, "Error: block has missing or extra attribute; did you edit the world using hex editor?\n");
 		throw ATTR_MISMATCH_ERROR;
 	}
-	this->block = 0;
-	this->attr = 0;
 #ifdef CHUNK_DEBUG
 	printf("block = %02X\n", this->block);
 #endif
+	this->block = 0;
+	this->attr = 0;
 }
 
 bool chunk::read(const byte *data, int *pos, int tag_type, int stage) {
